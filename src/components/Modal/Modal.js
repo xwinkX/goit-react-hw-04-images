@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 
 export default function Modal({ onClose, img }) {
   const handelClickEscape = useMemo(
-    event => {
+    () => event => {
       if (event.code === 'Escape') {
         onClose();
       }
