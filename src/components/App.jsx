@@ -1,64 +1,63 @@
-import { Component } from 'react';
+
 import { Button } from './Button/Button';
 import { ImageGallery } from './ImageGallery/ImageGallery';
-import { Searchbar } from './Searchbar/Searchbar';
-import { Modal } from './Modal/Modal';
+import  Searchbar  from './Searchbar/Searchbar';
+import  Modal  from './Modal/Modal';
 import { Loader } from './Loader/Loader';
 import { apiImg } from '../api/apiImg'; 
+import { useEffect, useState } from 'react';
 
 
-export class App extends Component {
-  state = {
-    imagesName: '',
-    page: 1,
-    images: [],
-    loading: false,
-    image: '',
-    
-  }
-  componentDidUpdate(prevProps, prevState) {
-    const imagesName = this.state.imagesName;
-    const page = this.state.page;
-    if (this.state.imagesName.trim() === '') {
+export default function App() {
+
+  const [imagesName, setImagesName] = useState('');
+  const [page, setPage] = useState(1);
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [image, setImage] = useState('');
+  
+  useEffect(() => {
+    if (imagesName.trim() === '') {
      return;
     }
-    if (prevState.imagesName !== imagesName || prevState.page !== page) {
-      this.setState({ loading: true });
+  
+   setLoading(true);
       apiImg(imagesName, page)
         .then(images =>
-          this.setState(prevState => ({
-            images: [
-              ...prevState.images,
+          setImages(prevState => ([
+              ...prevState,
               ...images.hits.map(({ id, webformatURL, largeImageURL }) => {
                 return { id, webformatURL, largeImageURL };
               }),
-            ],
-          }))
+            ])),
+          
         )
-        .finally(() => this.setState({ loading: false }));
-    }
-  }
-  handleSubmit = event => {
-    event.preventDefault();
-    this.setState({
-      imagesName: event.target.name.value,
-      images: [],
-      page: 1,
-    });
-  };
+        .finally(() => setLoading(false));
 
-  onLoadMore = () => {
-    this.setState(prevState => ({ page: prevState.page + 1 }));
+  }, [imagesName, page]);
+
+
+  const handleSubmit = event => {
+    event.preventDefault();
+    setImagesName(event.target.name.value);
+    setImages([]);
+    setPage(1);
+    
+ };
+
+ const onLoadMore = () => {
+    setPage(prevState => ( prevState + 1 ));
    } 
    
-   closeModal = () => {
-    this.setState({ image: '' });
+  const closeModal = () => {
+    setImage('');
   };
-   setCurrentImage = url => {
-     this.setState({ image: url })
+  
+  const setCurrentImage = url => {
+     setImage(url);
    }
-   render() {
-     const { imagesName, images, image, loading} = this.state;
+   
+  
   return (
     <div style={{
       display: 'grid',
@@ -66,13 +65,13 @@ export class App extends Component {
       gridGap: '16px',
       paddingBottom: '24px',
     }}>
-      <Searchbar onSubmit={this.handleSubmit} />
-      {images.length > 0 && <ImageGallery images={images} imagesName={imagesName} setCurrentImage={this.setCurrentImage} />}
+      <Searchbar onSubmit={handleSubmit} />
+      {images.length > 0 && <ImageGallery images={images} imagesName={imagesName} setCurrentImage={setCurrentImage} />}
       {loading && <Loader />}
-      {imagesName && <Button loadMore={this.onLoadMore} />}
-      {image && <Modal img={image} onClose={this.closeModal} />}
+      {imagesName && <Button loadMore={onLoadMore} />}
+      {image && <Modal img={image} onClose={closeModal} />}
    </div>
   );
 }
-}
+
 
