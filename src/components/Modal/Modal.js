@@ -1,9 +1,10 @@
 import css from 'components/Modal/Modal.module.css';
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { useMemo } from 'react';
 
 export default function Modal({ onClose, img }) {
-  const handelClickEscape = useCallback(
+  const handelClickEscape = useMemo(
     event => {
       if (event.code === 'Escape') {
         onClose();
@@ -13,7 +14,6 @@ export default function Modal({ onClose, img }) {
   );
   useEffect(() => {
     window.addEventListener('keydown', handelClickEscape);
-
     return () => window.removeEventListener('keydown', handelClickEscape);
   }, [handelClickEscape]);
 
